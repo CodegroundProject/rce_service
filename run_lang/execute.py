@@ -17,19 +17,26 @@ def response(code, stdout, stderr):
     }
 
 
-def setup_pytests(tests=None):
+def pass_args(inputs) -> str:
+    args = ""
+    for input_ in inputs:
+        args += str(input_["value"])
+    return args
+
+
+def setup_pytests(tests):
     # returns a piece of code
     # that launches tests
-    t = {
-        "id": "f844ef",
-        'function': 'sum_',
-        'input': [1, 2, 3, 4],
-        'output': 10
-    }
-    return """def test_{}():\n\tassert {}({}) == {}\n""".format(t['id'], t['function'], t['input'], t['output']).encode('utf-8')
+
+    test_code = """"""
+    for test in tests:
+        test_code += """def test_{}():\n\tassert {}({}) == {}\n""".format(
+            test['id'], test['func_name'], pass_args(test['inputs']), test['expected'])
+    return test_code.encode('utf-8')
+    # return """def test_{}():\n\tassert {}({}) == {}\n""".format(t['id'], t['function'], t['input'], t['output']).encode('utf-8')
 
 
-def execute_python(code):
+def execute_python(code, tests=None):
     # A python script can be executed directly.
     cmd = sp.Popen(
         ['python3'],
@@ -44,7 +51,7 @@ def execute_python(code):
     os.chdir("/tmp")
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix='.py', dir='/tmp')
     try:
-        tmp.write(code.encode('utf-8') + b'\n' + setup_pytests())
+        tmp.write(code.encode('utf-8') + b'\n' + setup_pytests(tests))
         tmp.flush()
         test_cmd = sp.run(
             ['pytest', '--json-report', f"--json-report-file=report-{os.path.basename(tmp.name)}.json", tmp.name])
@@ -68,17 +75,20 @@ def execute_python(code):
         os.unlink(f'report-{os.path.basename(tmp.name)}.json')
 
 
-def setup_jstests(tests=None):
-    return b"""
-        test('f84ef2', (done) => {
-            expect(add(5, 5)).toStrictEqual(10)
-            done()
+def setup_jstests(tests):
+    test_code = """"""
+    for test in tests:
+        test_code += """
+            test('{}', (done) => {
+                expect({}}({})).toStrictEqual({})
+                done()
         })
+    """.format(test["id"], test["func_name"], pass_args(test["inputs"]), test["expected"])
 
-    """
+    return test_code.encode('utf-8')
 
 
-def execute_javascript(code):
+def execute_javascript(code, tests=None):
     # A JS script can be executed directly.
     cmd = sp.Popen(
         ['node'],
@@ -101,7 +111,8 @@ def execute_javascript(code):
     temp_testfile = tempfile.NamedTemporaryFile(
         delete=False, suffix=".test.js", dir=os.path.join(os.getcwd(), "tests/"))
     try:
-        temp_testfile.write(code.encode("utf-8") + b"\n" + setup_jstests())
+        temp_testfile.write(code.encode("utf-8") +
+                            b"\n" + setup_jstests(tests))
         temp_testfile.flush()
         run_tests_cmd = sp.run([
             "jest", "--json"],

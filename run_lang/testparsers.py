@@ -9,12 +9,14 @@ def parse_pytest_report(report):
                     {
                         "test_id": "",
                         "status": "passed",
-                        "message": "optional message"
+                        "message": "optional message",
+                        "time": 3
                     },
                     {
                         "test_id": "",
                         "status": "failed",
-                        "message": "optional message"
+                        "message": "optional message",
+                        "time": 2
                     },
                 ],
                 "status": "failed"
@@ -28,7 +30,8 @@ def parse_pytest_report(report):
         output["test_results"].append({
             "test_id": test["nodeid"].split("::")[1].split("_")[1],
             "status": test["outcome"],
-            "message": ""
+            "message": "",
+            "time": test["setup"]["duration"] + test["call"]["duration"] + test["teardown"]["duration"]
         })
     if pytest_report["summary"]["failed"] > 0:
 
@@ -47,12 +50,14 @@ def parse_jest_report(report):
                     {
                         "test_id": "",
                         "status": "passed",
-                        "message": "optional message"
+                        "message": "optional message",
+                        "time": 2
                     },
                     {
                         "test_id": "",
                         "status": "failed",
-                        "message": "optional message"
+                        "message": "optional message",
+                        "time": 5
                     },
                 ],
                 "status": "failed"
@@ -67,7 +72,8 @@ def parse_jest_report(report):
         output["test_results"].append({
             "test_id": assertion_result["title"],
             "status": assertion_result["status"],
-            "message": ""
+            "message": "",
+            "time": assertion_result["duration"]
         })
     output["status"] = json_report["testResults"][0]["status"]
     return dumps(output)

@@ -14,6 +14,8 @@ def playground():
     try:
         code = json_data["code"]
         # challenge_id = json_data["challenge_id"]
+        # TODO Fetch challenge from content management here using api request
+
     except KeyError:
         return {"message": "Key \"code\" is not present"}, 400
 
