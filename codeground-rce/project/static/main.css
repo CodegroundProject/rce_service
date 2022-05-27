@@ -1,0 +1,61 @@
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+.h100 {
+  height: 100%;
+}
+#playground {
+  overflow: hidden;
+}
+/* Ansi -> HTML styles for use in coloring error messages. */
+.ansi-black-fg {
+  color: #282c34;
+}
+.ansi-red-fg {
+  color: #e06c75;
+}
+.ansi-green-fg {
+  color: #73cc32;
+}
+.ansi-yellow-fg {
+  color: #d19a66;
+}
+.ansi-blue-fg {
+  color: #61afef;
+}
+.ansi-magenta-fg {
+  color: #c678dd;
+}
+.ansi-cyan-fg {
+  color: #56b6c2;
+}
+.ansi-white-fg {
+  color: #abb2bf;
+}
+.ansi-bright-black-fg {
+  color: #5c6370;
+}
+.ansi-bright-red-fg {
+  color: #e06c75;
+}
+.ansi-bright-green-fg {
+  color: #73cc32;
+}
+.ansi-bright-yellow-fg {
+  color: #d19a66;
+}
+.ansi-bright-blue-fg {
+  color: #61afef;
+}
+.ansi-bright-magenta-fg {
+  color: #c678dd;
+}
+.ansi-bright-cyan-fg {
+  color: #56b6c2;
+}
+.ansi-bright-white-fg {
+  color: #ffffff;
+}

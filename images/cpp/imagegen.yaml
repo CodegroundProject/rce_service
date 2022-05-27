@@ -1,0 +1,24 @@
+description: "C++ (gcc 7, std=c++17)"
+ecosystem_pkg:
+  - poco/1.9.4
+  - nlohmann_json/3.9.1
+  - fmt/7.1.2
+
+pre_install_pkg:
+  - RUN pip3 install conan
+  - RUN sudo apt-get install -y clang-tools-9
+  - RUN mkdir playground
+  - WORKDIR /playground
+  - RUN echo "[generators]" > conanfile.txt
+  - RUN echo "compiler_args" >> conanfile.txt
+  - RUN echo "[requires]" >> conanfile.txt
+install_pkg_command: echo "{}" >> conanfile.txt
+post_install_pkg:
+  - RUN cat conanfile.txt
+  - RUN mkdir build
+  - WORKDIR /playground/build
+  - RUN conan config init
+  - ENV CONANPROFILE /root/.conan/profiles/default
+  - RUN conan install ..
+  - RUN cat conanbuildinfo.args
+  - WORKDIR /
