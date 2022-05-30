@@ -13,13 +13,12 @@ def playground():
         return {"message": "Data must be JSON"}, 400
     try:
         code = json_data["code"]
-        # challenge_id = json_data["challenge_id"]
-        # TODO Fetch challenge from content management here using api request
+        tests = json_data["tests"]
 
     except KeyError:
-        return {"message": "Key \"code\" is not present"}, 400
+        return {"message": "Key \"code\" or \"tests\" are not present"}, 400
 
-    result = execute(code)
+    result = execute(code, tests)
     return jsonify(result), 200
 
 

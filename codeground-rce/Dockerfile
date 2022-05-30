@@ -7,6 +7,9 @@ RUN ln -s /usr/include/locale.h /usr/include/xlocale.h
 ENV PYTHONUNBUFFERED=1 ENVIRONMENT=pre APP_HOME=/microservice/
 ENV DATABASE_DIR=database
 ENV PYMS_CONFIGMAP_FILE=`${APP_HOME}config-docker.yml`
+
+# Add codegroudn env
+
 RUN mkdir $APP_HOME && adduser -S -D -H python
 
 RUN chown -R python $APP_HOME

@@ -1,4 +1,6 @@
+import os
 from flask import render_template, request, Blueprint, redirect, url_for
+from urllib.parse import urljoin
 # from flask_login import LoginManager, login_required
 # from flask_redis import FlaskRedis
 # from .auth import auth as auth_bp, User, SECRET_KEY
@@ -8,6 +10,7 @@ from .playground import SchemaSavePlayground, \
 from marshmallow import ValidationError
 
 from .config import lang_to_host
+from .middlewares.auth import authorize
 
 import json
 import redis
@@ -22,11 +25,11 @@ redis_read_client = redis.Redis(host='127.0.0.1', port=6379, db=0)
 redis_write_client = redis.Redis(host='127.0.0.1', port=6379, db=0)
 
 
-def do_code_exec(lang, code):
+def do_code_exec(lang, code, tests):
     # addr = "http://%s-engine/api/run" % lang
     print(lang_to_host(lang))
     addr = "http://%s/api/run" % lang_to_host(lang)
-    response = requests.post(addr, json={"code": code})
+    response = requests.post(addr, json={"code": code, "tests": tests})
     return response.json(), response.status_code
 
 
@@ -85,6 +88,7 @@ def save_playground():
 
 
 @rce.route('/api/rce', methods=['POST'])
+@authorize(roles=["user"])
 # @login_required
 def remote_code_execution():
     json_data = request.get_json()
@@ -97,8 +101,11 @@ def remote_code_execution():
 
     lang = data["lang"]
     code = data["code"]
-
-    return do_code_exec(lang, code)
+    challenge_id = data["challenge_id"]
+    r = requests.get(urljoin(os.environ.get("CONTENT_MANAGER_URL"), "/api/tests"),
+                     json={"challenge_id": challenge_id})
+    tests = r.json()
+    return do_code_exec(lang, code, tests)
 
 
 @rce.route('/api/describe/<lang>', methods=['GET'])

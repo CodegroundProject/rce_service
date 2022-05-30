@@ -1,3 +1,4 @@
+from cgi import test
 import subprocess as sp
 import tempfile
 import os
@@ -27,7 +28,6 @@ def pass_args(inputs) -> str:
 def setup_pytests(tests):
     # returns a piece of code
     # that launches tests
-
     test_code = """"""
     for test in tests:
         test_code += """def test_{}():\n\tassert {}({}) == {}\n""".format(
@@ -36,7 +36,7 @@ def setup_pytests(tests):
     # return """def test_{}():\n\tassert {}({}) == {}\n""".format(t['id'], t['function'], t['input'], t['output']).encode('utf-8')
 
 
-def execute_python(code, tests=None):
+def execute_python(code, tests):
     # A python script can be executed directly.
     cmd = sp.Popen(
         ['python3'],
@@ -88,7 +88,7 @@ def setup_jstests(tests):
     return test_code.encode('utf-8')
 
 
-def execute_javascript(code, tests=None):
+def execute_javascript(code, tests):
     # A JS script can be executed directly.
     cmd = sp.Popen(
         ['node'],
@@ -184,15 +184,15 @@ def execute_rust(code):
     return response(cmd.returncode, cmd.stdout.read(), cmd.stderr.read())
 
 
-def execute(code):
+def execute(code, tests):
     lang = get_server_lang()
     if lang == "python":
-        return execute_python(code)
+        return execute_python(code, tests)
     if lang == "javascript":
-        return execute_javascript(code)
+        return execute_javascript(code, tests)
     if lang == "cpp":
-        return execute_cpp(code)
+        return execute_cpp(code, tests)
     if lang == "rust":
-        return execute_rust(code)
+        return execute_rust(code, tests)
     else:
         raise Exception(f"Language not suppported {lang}")
