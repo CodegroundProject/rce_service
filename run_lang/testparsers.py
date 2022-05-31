@@ -33,9 +33,9 @@ def parse_pytest_report(report):
             "message": "",
             "time": test["setup"]["duration"] + test["call"]["duration"] + test["teardown"]["duration"]
         })
-    if pytest_report["summary"]["failed"] > 0:
-
-        output["status"] = "failed"
+    if pytest_report["summary"].__contains__("failed"):
+        if pytest_report["summary"]["failed"] > 0:
+            output["status"] = "failed"
     else:
         output["status"] = "passed"
 

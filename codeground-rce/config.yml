@@ -13,8 +13,8 @@ pyms:
         component_name: "Codeground RCE"
     metrics: true
     service_discovery:
-      service: "consul"
       host: "localhost"
+      service: "project.discovery.ServiceDiscoveryConsulBasic"
       autoregister: true
     
 

@@ -1,4 +1,5 @@
 from cgi import test
+import json
 import subprocess as sp
 import tempfile
 import os
@@ -11,17 +12,13 @@ HOME = os.environ["HOME"]
 
 
 def response(code, stdout, stderr):
-    return {
-        "exitcode": code,
-        "stdout": stdout.decode(),
-        "stderr": stderr.decode(),
-    }
+    return json.loads(stdout.decode())
 
 
 def pass_args(inputs) -> str:
     args = ""
     for input_ in inputs:
-        args += str(input_["value"])
+        args += str(input_["value"]) + ","
     return args
 
 
@@ -78,12 +75,12 @@ def execute_python(code, tests):
 def setup_jstests(tests):
     test_code = """"""
     for test in tests:
-        test_code += """
-            test('{}', (done) => {
+        test_code += r"""
+            test('{}', (done) => \{
                 expect({}}({})).toStrictEqual({})
                 done()
-        })
-    """.format(test["id"], test["func_name"], pass_args(test["inputs"]), test["expected"])
+        \})
+    """.format(test["id"], test["func_name"], 40, test["expected"])
 
     return test_code.encode('utf-8')
 
