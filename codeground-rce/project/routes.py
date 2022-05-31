@@ -101,22 +101,22 @@ def remote_code_execution():
 
     lang = data["lang"]
     code = data["code"]
-    # challenge_id = data["challenge_id"]
-    # r = requests.get(urljoin(os.environ.get("CONTENT_MANAGER_URL"), "/api/tests"),
-    #                  json={"challenge_id": challenge_id})
-    # tests = r.json()
-    tests = [
-        {
-            "id": "test_id",
-            "func_name": "add_",
-            "inputs": [
-                {"value": 2},
-                {"value": 4}
-            ],
-            "expected": 6
+    challenge_id = data["challenge_id"]
+    r = requests.get(urljoin(os.environ.get("CONTENT_MANAGER_URL"), "/api/tests"),
+                     json={"challenge_id": challenge_id})
+    tests = r.json()
+    # tests = [
+    #     {
+    #         "id": "test_id",
+    #         "func_name": "add_",
+    #         "inputs": [
+    #             {"value": 2},
+    #             {"value": 4}
+    #         ],
+    #         "expected": 6
 
-        }
-    ]
+    #     }
+    # ]
 
     return do_code_exec(lang, code, tests)
 
