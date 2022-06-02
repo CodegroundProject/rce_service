@@ -1,5 +1,7 @@
-import os
+
 from flask import render_template, request, Blueprint, redirect, url_for
+import requests
+import os
 from urllib.parse import urljoin
 # from flask_login import LoginManager, login_required
 # from flask_redis import FlaskRedis
@@ -25,11 +27,12 @@ redis_read_client = redis.Redis(host='127.0.0.1', port=6379, db=0)
 redis_write_client = redis.Redis(host='127.0.0.1', port=6379, db=0)
 
 
-def do_code_exec(lang, code, tests):
+def do_code_exec(lang, code, func_name, tests):
     # addr = "http://%s-engine/api/run" % lang
     print(lang_to_host(lang))
     addr = "http://%s/api/run" % lang_to_host(lang)
-    response = requests.post(addr, json={"code": code, "tests": tests})
+    response = requests.post(
+        addr, json={"code": code, "func_name": func_name, "tests": tests})
     return response.json(), response.status_code
 
 
@@ -102,9 +105,8 @@ def remote_code_execution():
     lang = data["lang"]
     code = data["code"]
     challenge_id = data["challenge_id"]
-    r = requests.get(urljoin(os.environ.get("CONTENT_MANAGER_URL"), "/api/tests"),
-                     json={"challenge_id": challenge_id})
-    tests = r.json()
+
+    func_name, tests = getChallengeTestsById(challenge_id)
     # tests = [
     #     {
     #         "id": "test_id",
@@ -117,8 +119,9 @@ def remote_code_execution():
 
     #     }
     # ]
+    print(tests)
 
-    return do_code_exec(lang, code, tests)
+    return do_code_exec(lang, code, func_name, tests)
 
 
 @rce.route('/api/describe/<lang>', methods=['GET'])
@@ -130,3 +133,14 @@ def describe(lang=None):
         return {"message": "Language \"%s\" is not valid" % lang}, 400
 
     return do_lang_describe(run_lang_ip, lang)
+
+
+def getChallengeTestsById(challenge_id):
+    # Route router.get("/tests/:id", challengeController.getChallengeTestsById)
+    r = requests.get(urljoin(os.environ.get(
+        "CONTENT_MANAGER_URL"), f"/api/challenges/tests/{challenge_id}"))
+    data = r.json()
+    if data['success'] == True:
+        # print(data['tests'])
+        return data['func_name'], data['tests']
+    return None

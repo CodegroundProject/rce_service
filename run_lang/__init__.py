@@ -14,11 +14,11 @@ def playground():
     try:
         code = json_data["code"]
         tests = json_data["tests"]
-
+        func_name = json_data["func_name"]
     except KeyError:
         return {"message": "Key \"code\" or \"tests\" are not present"}, 400
 
-    result = execute(code, tests)
+    result = execute(code, func_name, tests)
     return jsonify(result), 200
 
 

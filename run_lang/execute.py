@@ -22,18 +22,18 @@ def pass_args(inputs) -> str:
     return args
 
 
-def setup_pytests(tests):
+def setup_pytests(func_name, tests):
     # returns a piece of code
     # that launches tests
     test_code = """"""
     for test in tests:
         test_code += """def test_{}():\n\tassert {}({}) == {}\n""".format(
-            test['id'], test['func_name'], pass_args(test['inputs']), test['expected'])
+            test['_id'], func_name, pass_args(test['inputs']), test['expected'])
     return test_code.encode('utf-8')
     # return """def test_{}():\n\tassert {}({}) == {}\n""".format(t['id'], t['function'], t['input'], t['output']).encode('utf-8')
 
 
-def execute_python(code, tests):
+def execute_python(code, func_name, tests):
     # A python script can be executed directly.
     cmd = sp.Popen(
         ['python3'],
@@ -48,7 +48,8 @@ def execute_python(code, tests):
     os.chdir("/tmp")
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix='.py', dir='/tmp')
     try:
-        tmp.write(code.encode('utf-8') + b'\n' + setup_pytests(tests))
+        tmp.write(code.encode('utf-8') + b'\n' +
+                  setup_pytests(func_name, tests))
         tmp.flush()
         test_cmd = sp.run(
             ['pytest', '--json-report', f"--json-report-file=report-{os.path.basename(tmp.name)}.json", tmp.name])
@@ -72,7 +73,7 @@ def execute_python(code, tests):
         os.unlink(f'report-{os.path.basename(tmp.name)}.json')
 
 
-def setup_jstests(tests):
+def setup_jstests(func_name, tests):
     test_code = """"""
     for test in tests:
         test_code += r"""
@@ -80,12 +81,12 @@ def setup_jstests(tests):
                 expect({}}({})).toStrictEqual({})
                 done()
         \})
-    """.format(test["id"], test["func_name"], 40, test["expected"])
+    """.format(test["_id"], func_name, 40, test["expected"])
 
     return test_code.encode('utf-8')
 
 
-def execute_javascript(code, tests):
+def execute_javascript(code, func_name, tests):
     # A JS script can be executed directly.
     cmd = sp.Popen(
         ['node'],
@@ -109,7 +110,7 @@ def execute_javascript(code, tests):
         delete=False, suffix=".test.js", dir=os.path.join(os.getcwd(), "tests/"))
     try:
         temp_testfile.write(code.encode("utf-8") +
-                            b"\n" + setup_jstests(tests))
+                            b"\n" + setup_jstests(func_name, tests))
         temp_testfile.flush()
         run_tests_cmd = sp.run([
             "jest", "--json"],
@@ -181,15 +182,15 @@ def execute_rust(code):
     return response(cmd.returncode, cmd.stdout.read(), cmd.stderr.read())
 
 
-def execute(code, tests):
+def execute(code, func_name, tests):
     lang = get_server_lang()
     if lang == "python":
-        return execute_python(code, tests)
+        return execute_python(code, func_name, tests)
     if lang == "javascript":
-        return execute_javascript(code, tests)
+        return execute_javascript(code, func_name, tests)
     if lang == "cpp":
-        return execute_cpp(code, tests)
+        return execute_cpp(code, func_name, tests)
     if lang == "rust":
-        return execute_rust(code, tests)
+        return execute_rust(code, func_name, tests)
     else:
         raise Exception(f"Language not suppported {lang}")
