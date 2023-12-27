@@ -1,1 +1,3 @@
-# rce_service
+# run_lang
+
+Package `run_lang` executes code in a language.

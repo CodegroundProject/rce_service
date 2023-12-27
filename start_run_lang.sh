@@ -1,3 +1,3 @@
 #!/bin/bash
 
-waitress-serve --port=6004 --call 'run_lang:create_app'
+gunicorn --bind 0.0.0.0:5000 manage:create_app
