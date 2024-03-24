@@ -28,7 +28,7 @@ def setup_pytests(func_name, tests):
     test_code = """"""
     for test in tests:
         test_code += """def test_{}():\n\tassert {}({}) == {}\n""".format(
-            test['_id'], func_name, pass_args(test['inputs']), test['expected'])
+            test['_id'], func_name, pass_args(test['inputs']), test['output'])
     return test_code.encode('utf-8')
     # return """def test_{}():\n\tassert {}({}) == {}\n""".format(t['id'], t['function'], t['input'], t['output']).encode('utf-8')
 
@@ -65,7 +65,6 @@ def execute_python(code, func_name, tests):
         return response(cmd.returncode, r.encode("utf-8"), cmd.stderr.read())
     except Exception as e:
         raise e
-        return response(cmd.returncode, b"Could not run unit tests", cmd.stderr.read())
 
     finally:
         tmp.close()
@@ -74,16 +73,17 @@ def execute_python(code, func_name, tests):
 
 
 def setup_jstests(func_name, tests):
-    test_code = """"""
+    test_code = ""
     for test in tests:
-        test_code += r"""
-            test('{}', (done) => \{
-                expect({}}({})).toStrictEqual({})
+        test_code += """
+            test('{}', (done) => {{
+                expect({}({})).toStrictEqual({})
                 done()
-        \})
-    """.format(test["_id"], func_name, 40, test["expected"])
+            }})
+        """.format(test["_id"], func_name, pass_args(test['inputs']), test["output"])
 
     return test_code.encode('utf-8')
+
 
 
 def execute_javascript(code, func_name, tests):
@@ -107,7 +107,7 @@ def execute_javascript(code, func_name, tests):
     os.chdir(tempdir_name)
 
     temp_testfile = tempfile.NamedTemporaryFile(
-        delete=False, suffix=".test.js", dir=os.path.join(os.getcwd(), "tests/"))
+        delete=False, suffix=".test.js", dir=os.getcwd())
     try:
         temp_testfile.write(code.encode("utf-8") +
                             b"\n" + setup_jstests(func_name, tests))
@@ -121,14 +121,12 @@ def execute_javascript(code, func_name, tests):
         return response(cmd.returncode, r.encode("utf-8"), cmd.stderr.read())
     except Exception as e:
         raise e
-        return response(cmd.returncode, b"Could not run unit tests", cmd.stderr.read())
 
     finally:
         temp_testfile.close()
-        # delete workspace
+        # TODO: Delete workspace
         pass
 
-    return response(cmd.returncode, cmd.stdout.read(), cmd.stderr.read())
 
 
 def execute_cpp(code):
@@ -182,11 +180,12 @@ def execute_rust(code):
     return response(cmd.returncode, cmd.stdout.read(), cmd.stderr.read())
 
 
-def execute(code, func_name, tests):
-    lang = get_server_lang()
-    if lang == "python":
+def execute(lang, code, func_name, tests):
+    if lang != get_server_lang():
+        raise Exception(f"Language not suppported {lang}")
+    if lang == "py":
         return execute_python(code, func_name, tests)
-    if lang == "javascript":
+    if lang == "js":
         return execute_javascript(code, func_name, tests)
     if lang == "cpp":
         return execute_cpp(code, func_name, tests)

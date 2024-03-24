@@ -2,9 +2,9 @@
 # Modify `dockergen.yaml` and run
 #   `python images/dockergen.py` in the root directory.
 FROM kevjin/runlang_base:latest
-SHELL ["/bin/bash", "-c"]
 
-COPY run_lang/requirements.txt /tmp/requirements.txt
+
+COPY requirements.txt /tmp/requirements.txt
 RUN pip3 install --requirement /tmp/requirements.txt
 
 # Pre-install
@@ -23,12 +23,12 @@ RUN echo 0
 
 # Service setup
 COPY run_lang /run_lang
+COPY manage.py /
 COPY start_run_lang.sh /start_run_lang.sh
-COPY images/python/packages /packages
 
-ENV RUN_LANG_WHICH="python"
+ENV RUN_LANG_WHICH="py"
 ENV RUN_LANG_WHICH_DESCRIPTION="python 3.7"
 
 WORKDIR /
 
-CMD ["./start_run_lang.sh"]
+ENTRYPOINT ["./start_run_lang.sh"]

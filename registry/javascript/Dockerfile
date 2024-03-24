@@ -4,7 +4,7 @@
 FROM kevjin/runlang_base:latest
 SHELL ["/bin/bash", "-c"]
 
-COPY run_lang/requirements.txt /tmp/requirements.txt
+COPY requirements.txt /tmp/requirements.txt
 RUN pip3 install --requirement /tmp/requirements.txt
 
 # Pre-install
@@ -24,12 +24,13 @@ RUN npm install -g jest-json-repoter
 
 # Service setup.
 COPY run_lang /run_lang
+COPY manage.py /
 COPY start_run_lang.sh /start_run_lang.sh
-COPY images/javascript/packages /packages
-COPY images/javascript/template /template
+COPY registry/javascript/packages /packages
+COPY registry/javascript/template /template
 
 
-ENV RUN_LANG_WHICH="javascript"
+ENV RUN_LANG_WHICH="js"
 ENV RUN_LANG_WHICH_DESCRIPTION="node 16"
 
 WORKDIR /
